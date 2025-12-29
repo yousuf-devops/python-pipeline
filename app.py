@@ -1,7 +1,11 @@
-from flask import Flask, jsonify, render_template_string
+from flask import Flask, jsonify, render_template_string, request
 import datetime
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
+
+# Fix for working behind reverse proxy
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -35,25 +39,32 @@ HTML_TEMPLATE = """
             font-weight: bold;
             color: #ffd700;
         }
+        .domain {
+            font-size: 20px;
+            color: #90ee90;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🚀 Flask CI/CD Pipeline Demo</h1>
         <div class="info">
+            <p><strong>Domain:</strong> <span class="domain">simplewebsite.site</span></p>
             <p><strong>Status:</strong> Application is running successfully!</p>
             <p><strong>Version:</strong> <span class="version">2.0</span></p>
             <p><strong>Server Time:</strong> {{ current_time }}</p>
             <p><strong>Deployment:</strong> Automated via GitHub Actions</p>
+            <p><strong>Accessed via:</strong> {{ request.host }}</p>
         </div>
         <h2>✅ Pipeline Features:</h2>
         <ul>
             <li>Automatic deployment on git push</li>
             <li>Zero-downtime updates</li>
             <li>Runs on AWS EC2</li>
-            <li>Production-ready setup</li>
+            <li>Production-ready setup with custom domain</li>
+            <li>Served via Nginx reverse proxy</li>
         </ul>
-        <p><em>Make a change to this file and push to see the magic!! Build by Shahzaib......... ✨</em></p>
+        <p><em>Make a change to this file and push to see the magic! Build by Shahzaib.✨</em></p>
     </div>
 </body>
 </html>
@@ -69,7 +80,9 @@ def health():
     return jsonify({
         "status": "healthy",
         "timestamp": datetime.datetime.now().isoformat(),
-        "version": "2.0"
+        "version": "2.0",
+        "domain": "simplewebsite.site",
+        "host": request.host
     })
 
 @app.route('/api/info')
@@ -77,7 +90,9 @@ def info():
     return jsonify({
         "app": "Flask CI/CD Demo",
         "version": "2.0",
-        "description": "Automated deployment pipeline demo"
+        "description": "Automated deployment pipeline demo",
+        "domain": "simplewebsite.site",
+        "access_method": "Via Nginx reverse proxy"
     })
 
 if __name__ == '__main__':

@@ -38,22 +38,52 @@ jobs:
           # Install/update dependencies
           pip install -r requirements.txt
           
+          # Install Nginx if not installed
+          sudo apt update
+          sudo apt install -y nginx || true
+          
+          # Configure Nginx
+          sudo tee /etc/nginx/sites-available/simplewebsite.site > /dev/null << 'NGINX_CONFIG'
+          server {
+              listen 80;
+              server_name simplewebsite.site www.simplewebsite.site;
+              
+              location / {
+                  proxy_pass http://127.0.0.1:5000;
+                  proxy_set_header Host \$host;
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+          }
+          NGINX_CONFIG
+          
+          # Enable site if not already enabled
+          if [ ! -f /etc/nginx/sites-enabled/simplewebsite.site ]; then
+              sudo ln -s /etc/nginx/sites-available/simplewebsite.site /etc/nginx/sites-enabled/
+          fi
+          
+          # Test and restart Nginx
+          sudo nginx -t && sudo systemctl restart nginx
+          
           # Make scripts executable
           chmod +x start.sh stop.sh
           
           # Start application
           gunicorn --bind 0.0.0.0:5000 --workers 3 --daemon app:app
           
-          echo "Deployment completed successfully!"
+          echo "Deployment completed successfully with domain configuration!"
         ENDSSH
         
         # Clean up
         rm -f private_key.pem
 
-    - name: Verify Deployment
+    - name: Verify Deployment via Domain
       env:
         HOST: ${{ secrets.EC2_HOST }}
       run: |
-        sleep 10
-        curl -f http://${HOST}:5000/health || exit 1
+        sleep 5
+        # Try both IP and domain health checks
+        curl -f http://${HOST}:5000/health || echo "Direct IP check failed, checking via Nginx..."
+        curl -f http://${HOST}/health || exit 1
         echo "Application is healthy and running!"
