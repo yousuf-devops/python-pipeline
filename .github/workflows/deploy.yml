@@ -82,7 +82,7 @@ jobs:
       env:
         HOST: ${{ secrets.EC2_HOST }}
       run: |
-        sleep 5
+        sleep 15
         # Try both IP and domain health checks
         curl -f http://${HOST}:5000/health || echo "Direct IP check failed, checking via Nginx..."
         curl -f http://${HOST}/health || exit 1
