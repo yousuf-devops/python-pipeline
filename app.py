@@ -53,7 +53,7 @@ HTML_TEMPLATE = """
             <li>Runs on AWS EC2</li>
             <li>Production-ready setup</li>
         </ul>
-        <p><em>Make a change to this file and push to see the magic!Build by Shahzaib. ✨</em></p>
+        <p><em>Make a change to this file and push to see the magic!Build by Shahzaib.!! ✨</em></p>
     </div>
 </body>
 </html>
