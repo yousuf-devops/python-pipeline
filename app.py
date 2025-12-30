@@ -69,7 +69,7 @@ def health():
     return jsonify({
         "status": "healthy",
         "timestamp": datetime.datetime.now().isoformat(),
-        "version": "2.0"
+        "version": "3.0"
     })
 
 @app.route('/api/info')
