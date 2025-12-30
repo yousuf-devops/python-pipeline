@@ -1,0 +1,5 @@
+CI/CD Pipeline Test
+===================
+Repository: python-pipeline
+Status: Testing automated deployment
+Server: EC2 Ubuntu
