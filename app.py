@@ -39,7 +39,7 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Flask CI/CD Pipeline Demo</h1>
+        <h1>🚀 Flask CI/CD Pipeline Demon</h1>
         <div class="info">
             <p><strong>Status:</strong> Application is running successfully!</p>
             <p><strong>Version:</strong> <span class="version">2.0</span></p>
@@ -76,7 +76,7 @@ def health():
 def info():
     return jsonify({
         "app": "Flask CI/CD Demo",
-        "version": "2.0",
+        "version": "3.0",
         "description": "Automated deployment pipeline demo"
     })
 
