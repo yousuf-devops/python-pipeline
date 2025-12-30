@@ -39,7 +39,7 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Flask CI/CD Pipeline actions</h1>
+        <h1>🚀 Flask CI/CD Pipeline as</h1>
         <div class="info">
             <p><strong>Status:</strong> Application is running successfully!</p>
             <p><strong>Version:</strong> <span class="version">2.0</span></p>
