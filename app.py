@@ -70,7 +70,8 @@ def health():
         "status": "healthy",
         "timestamp": datetime.datetime.now().isoformat(),
         "version": "3.0"
-    })
+    }), 200
+
 
 @app.route('/api/info')
 def info():
