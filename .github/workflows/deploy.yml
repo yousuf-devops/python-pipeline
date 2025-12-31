@@ -8,45 +8,43 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    - name: Deploy to EC2
-      env:
-        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-        HOST: ${{ secrets.EC2_HOST }}
-      run: |
-        echo "$PRIVATE_KEY" > private_key.pem
-        chmod 600 private_key.pem
-        
-        # Copy files to EC2
-        scp -i private_key.pem -o StrictHostKeyChecking=no -r ./* ubuntu@${HOST}:/home/ubuntu/python-pipeline/
-        
-        # Connect to EC2 and deploy
-        ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${HOST} << 'ENDSSH'
-          cd /home/ubuntu/python-pipeline
-          
-          # Activate virtual environment
-          source venv/bin/activate
-          
-          # Install/update dependencies
-          pip install -r requirements.txt
-          
-          # Restart the service
-          sudo systemctl restart python-pipeline
-          
-          echo "Deployment completed successfully!"
-        ENDSSH
-        
-        # Clean up
-        rm -f private_key.pem
-    
-    - name: Verify Deployment
-      env:
-        HOST: ${{ secrets.EC2_HOST }}
-      run: |
-        sleep 5
-        curl -f http://${HOST}:5000/health || exit 1
-        echo "Application is healthy and running!"
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${HOST} << 'ENDSSH'
+            cd /home/ubuntu/python-pipeline
+
+            # Pull latest code
+            git pull origin main
+
+            # Activate virtual environment
+            source venv/bin/activate
+
+            # Install/update dependencies
+            pip install -r requirements.txt
+
+            # Restart the service
+            sudo systemctl restart python-pipeline
+
+            echo "Deployment completed successfully!"
+          ENDSSH
+
+          rm -f private_key.pem
+
+      - name: Verify Deployment
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          sleep 5
+          curl -f http://${HOST}:5000/health || exit 1
+          echo "Application is healthy and running!"
